@@ -6,8 +6,8 @@
 namespace slince\Mechanic\TestCase;
 
 use GuzzleHttp\Client;
-use Slince\Mechanic\Api;
-use Slince\Mechanic\Utility\RequestAdapter;
+use Slince\Mechanic\TestCase\ApiTest\Api;
+use Slince\Mechanic\TestCase\ApiTest\RequestAdapter;
 
 class ApiTestCase extends TestCase
 {

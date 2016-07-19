@@ -3,7 +3,7 @@
  * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
-namespace Slince\Mechanic;
+namespace Slince\Mechanic\TestCase\ApiTest;
 
 class Api
 {

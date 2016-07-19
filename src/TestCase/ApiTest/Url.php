@@ -3,7 +3,7 @@
  * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
-namespace Slince\Runner;
+namespace Slince\Mechanic\TestCase\ApiTest;
 
 class Url
 {
