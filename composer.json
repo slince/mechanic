@@ -1,0 +1,36 @@
+{
+    "name": "slince/mechanic",
+    "description": "Test Automation",
+    "type": "project",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "tao",
+            "email": "taosikai@yeah.net"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Slince\\Mechanic\\": "./src"
+        }
+    },
+    "require": {
+        "php": ">=5.5.9",
+        "guzzlehttp/guzzle": "~6.2",
+        "slince/event": "~1.0",
+        "slince/cache": "~1.0",
+        "slince/config": "~1.0",
+        "slince/di": "~1.0",
+        "symfony/filesystem": "~3.0",
+        "symfony/console": "~3.0",
+        "cakephp/utility": "~3.0",
+        "phpoffice/phpexcel": "~1.8",
+        "webmozart/assert": "^1.0",
+        "symfony/class-loader": "^3.1",
+        "symfony/finder": "^3.1"
+    },
+    "bin": [
+        "runner"
+    ],
+    "minimum-stability": "stable"
+}
