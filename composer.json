@@ -26,7 +26,8 @@
         "cakephp/utility": "~3.0",
         "phpoffice/phpexcel": "~1.8",
         "webmozart/assert": "^1.0",
-        "symfony/finder": "^3.1"
+        "symfony/finder": "^3.1",
+        "cakephp/i18n": "^3.2"
     },
     "bin": [
         "mechanic"

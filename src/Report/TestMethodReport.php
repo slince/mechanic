@@ -5,7 +5,7 @@
  */
 namespace Slince\Mechanic\Report;
 
-class TestMethodReport
+class TestMethodReport implements ReportInterface
 {
     /**
      * @var \ReflectionMethod
@@ -20,17 +20,17 @@ class TestMethodReport
     /**
      * @var boolean
      */
-    protected $result;
+    protected $testResult;
 
     /**
      * @var array
      */
     protected $messages = [];
 
-    function __construct($method, $result, array $messages = [])
+    function __construct($method, $testResult, array $messages = [])
     {
         $this->method = $method;
-        $this->result = $result;
+        $this->testResult = $testResult;
         $this->messages = $messages;
     }
 
@@ -68,19 +68,19 @@ class TestMethodReport
     }
 
     /**
-     * @param boolean $result
+     * @param boolean $testResult
      */
-    public function setResult($result)
+    public function setResult($testResult)
     {
-        $this->result = $result;
+        $this->testResult = $testResult;
     }
 
     /**
      * @return boolean
      */
-    public function getResult()
+    public function getTestResult()
     {
-        return $this->result;
+        return $this->testResult;
     }
 
     /**
@@ -109,14 +109,26 @@ class TestMethodReport
     }
 
     /**
+     * 分析报告
+     * @return array
+     */
+    function analyze()
+    {
+        return [
+            'result' => $this->getTestResult(),
+            'messages' => $this->getMessages()
+        ];
+    }
+
+    /**
      * 生成测试报告对象
      * @param $method
-     * @param $result
+     * @param $testResult
      * @param array $messages
      * @return static
      */
-    static function create($method, $result, array $messages = [])
+    static function create($method, $testResult, array $messages = [])
     {
-        return new static($method, $result, $messages);
+        return new static($method, $testResult, $messages);
     }
 }

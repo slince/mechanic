@@ -1,6 +1,6 @@
 <?php
 /**
- * slince runner library
+ * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
 namespace Slince\Mechanic\Report;
@@ -90,6 +90,7 @@ class Report
      */
     public function addTestSuiteReports(TestSuiteReport $testSuiteReport)
     {
+        $testSuiteReport->setReport($this);
         $this->testSuiteReports[] = $testSuiteReport;
     }
 
@@ -104,5 +105,44 @@ class Report
             $messages += $testCaseReport->getMessages();
         }
         return $messages;
+    }
+
+    /**
+     * 获取成功的测试套件报告
+     * @return array
+     */
+    function getSuccessTestSuiteReports()
+    {
+        return array_filter($this->getTestSuiteReports(), function(TestSuiteReport $testSuiteReport){
+            return $testSuiteReport->getTestResult();
+        });
+    }
+
+    /**
+     * 获取失败的测试套件报告
+     * @return array
+     */
+    function getFailedTestSuiteReports()
+    {
+        return array_filter($this->getTestSuiteReports(), function(TestSuiteReport $testSuiteReport){
+            return !$testSuiteReport->getTestResult();
+        });
+    }
+
+    /**
+     * 分析报告
+     * @return array
+     */
+    function analyze()
+    {
+        return [
+            'result' => $this->getTestResult(),
+            'testSuiteNum' => count($this->getTestSuiteReports()),
+            'testSuiteSuccessNum' => count($this->getSuccessTestSuiteReports()),
+            'testSuiteFailedNum' => count($this->getFailedTestSuiteReports()),
+            'testSuiteAnalysis' => array_map(function(TestSuiteReport $testSuiteReport){
+                return $testSuiteReport->analyze();
+            }, $this->getTestSuiteReports())
+        ];
     }
 }

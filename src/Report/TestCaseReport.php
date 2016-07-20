@@ -7,7 +7,7 @@ namespace Slince\Mechanic\Report;
 
 use Slince\Mechanic\TestCase\TestCase;
 
-class TestCaseReport
+class TestCaseReport implements ReportInterface
 {
     /**
      * @var TestCase
@@ -24,6 +24,11 @@ class TestCaseReport
      * @var array
      */
     protected $messages = [];
+
+    /**
+     * @var TestSuiteReport
+     */
+    protected $testSuiteReport;
 
     function __construct(TestCase $testCase = null)
     {
@@ -44,6 +49,22 @@ class TestCaseReport
     public function setTestCase($testCase)
     {
         $this->testCase = $testCase;
+    }
+
+    /**
+     * @param TestSuiteReport $testSuiteReport
+     */
+    public function setTestSuiteReport($testSuiteReport)
+    {
+        $this->testSuiteReport = $testSuiteReport;
+    }
+
+    /**
+     * @return TestSuiteReport
+     */
+    public function getTestSuiteReport()
+    {
+        return $this->testSuiteReport;
     }
 
     /**
@@ -111,10 +132,49 @@ class TestCaseReport
     public function getTestResult()
     {
         foreach ($this->getTestMethodReports() as $testMethodReport) {
-            if (!$testMethodReport->getResult()) {
+            if (!$testMethodReport->getTestResult()) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * 获取成功的测试方法报告
+     * @return TestMethodReport[]
+     */
+    function getSuccessTestMethodReports()
+    {
+        return array_filter($this->getTestMethodReports(), function(TestMethodReport $testMethodReport){
+            return $testMethodReport->getTestResult();
+        });
+    }
+
+    /**
+     * 获取测试失败的测试方法报告
+     * @return TestMethodReport[]
+     */
+    function getFailedTestMethodReports()
+    {
+        return array_filter($this->getTestMethodReports(), function(TestMethodReport $testMethodReport){
+            return !$testMethodReport->getTestResult();
+        });
+    }
+
+    /**
+     * 分析报告
+     * @return array
+     */
+    function analyze()
+    {
+        return [
+            'result' => $this->getTestResult(),
+            'testMethodNum' => count($this->getTestMethodReports()),
+            'testMethodSuccessNum' => count($this->getSuccessTestMethodReports()),
+            'testMethodFailedNum' => count($this->getFailedTestMethodReports()),
+            'testMethodAnalysis' => array_map(function(TestMethodReport $testMethodReport){
+                return $testMethodReport->analyze();
+            }, $this->getTestMethodReports())
+        ];
     }
 }

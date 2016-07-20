@@ -7,7 +7,7 @@ namespace Slince\Mechanic\Report;
 
 use Slince\Mechanic\TestSuite;
 
-class TestSuiteReport
+class TestSuiteReport implements ReportInterface
 {
     /**
      * @var TestSuite
@@ -19,6 +19,17 @@ class TestSuiteReport
      * @var TestCaseReport[]
      */
     protected $testCaseReports;
+
+    /**
+     * @var Report
+     */
+    protected $report;
+
+    /**
+     * 测试结果
+     * @var boolean
+     */
+    protected $result;
 
     function __construct(TestSuite $testSuite)
     {
@@ -41,9 +52,30 @@ class TestSuiteReport
         $this->testSuite = $testSuite;
     }
 
-    function addTestCaseReport(TestCaseReport $testSuiteReport)
+    /**
+     * @param Report $report
+     */
+    public function setReport($report)
     {
-        $this->testCaseReports[] = $testSuiteReport;
+        $this->report = $report;
+    }
+
+    /**
+     * @return Report
+     */
+    public function getReport()
+    {
+        return $this->report;
+    }
+
+    /**
+     * 追加测试用例报告
+     * @param TestCaseReport $testCaseReport
+     */
+    function addTestCaseReport(TestCaseReport $testCaseReport)
+    {
+        $testCaseReport->setTestSuiteReport($this);
+        $this->testCaseReports[] = $testCaseReport;
     }
 
     /**
@@ -63,15 +95,62 @@ class TestSuiteReport
     }
 
     /**
+     * 是否重新计算
+     * @param bool $refresh
      * @return bool
      */
-    public function getTestResult()
+    public function getTestResult($refresh = false)
     {
-        foreach ($this->getTestCaseReports() as $testCaseReport) {
-            if (!$testCaseReport->getTestResult()) {
-                return false;
+        if (is_null($this->result) || $refresh) {
+            $result = true;
+            foreach ($this->getTestCaseReports() as $testCaseReport) {
+                if (!$testCaseReport->getTestResult()) {
+                    $result = false;
+                    break;
+                }
             }
+            $this->result = $result;
         }
-        return true;
+        return $this->result;
+    }
+
+    /**
+     * 获取成功的测试用例报告
+     * @return TestCaseReport[]
+     */
+    function getSuccessTestCaseReports()
+    {
+        return array_filter($this->getTestCaseReports(), function(TestCaseReport $testCaseReport){
+            return $testCaseReport->getTestResult();
+        });
+    }
+
+    /**
+     * 获取测试失败的测试用例报告
+     * @return TestCaseReport[]
+     */
+    function getFailedTestCaseReports()
+    {
+        return array_filter($this->getTestCaseReports(), function(TestCaseReport $testCaseReport){
+            return !$testCaseReport->getTestResult();
+        });
+    }
+
+    /**
+     * 分析报告
+     * @return array
+     */
+    function analyze()
+    {
+        return [
+            'name' => $this->getTestSuite()->getName(),
+            'result' => $this->getTestResult(true),
+            'testCaseNum' => count($this->getTestCaseReports()),
+            'testCaseSuccessNum' => count($this->getSuccessTestCaseReports()),
+            'testCaseFailedNum' => count($this->getFailedTestCaseReports()),
+            'testCaseAnalysis' => array_map(function(TestCaseReport $testCaseReport){
+                return $testCaseReport->analyze();
+            }, $this->getTestCaseReports())
+        ];
     }
 }

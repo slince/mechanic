@@ -7,10 +7,8 @@ namespace Slince\Mechanic\Command;
 
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputOption;
-use Slince\Runner\ExaminationChain;
-use Slince\Runner\Runner;
-use Slince\Runner\Examination;
 use PHPExcel;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Command extends BaseCommand
 {
@@ -26,18 +24,19 @@ class Command extends BaseCommand
      */
     const CONFIG_OPTION = 'config';
 
-    function configure()
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
+
+    /**
+     * @return OutputInterface
+     */
+    public function getOutput()
     {
-        $this->addOption(self::CONFIG_OPTION, null, InputOption::VALUE_OPTIONAL, '配置文件',
-            getcwd() . DIRECTORY_SEPARATOR . self::CONFIG_FILE
-        );
+        return $this->output;
     }
-
-    function validateConfigFile($configFile)
-    {
-
-    }
-
+    
     protected function makeReport(Runner $runner)
     {
         $excel = new PHPExcel();
@@ -64,72 +63,4 @@ class Command extends BaseCommand
         $writer->save($filename);
     }
 
-    /**
-     * 提取报告数据
-     * @param ExaminationChain $examinationChain
-     * @return array
-     */
-    protected function extractDataFromChain(ExaminationChain $examinationChain)
-    {
-        $datas = [];
-        foreach ($examinationChain as $examination) {
-            $data = [
-                'name' => $examination->getName(),
-                'url' => $examination->getApi()->getUrl(),
-                'method' => $examination->getApi()->getMethod(),
-                'status' => $this->getStatusText($examination->getStatus()),
-                'remark' => implode("\r\n", $examination->getReport()->getMessages()),
-            ];
-            $datas[] = $data;
-        }
-        return $datas;
-    }
-
-    /**
-     * 将所有断言中的message迭代出来
-     * @param array $assertions
-     * @return string
-     */
-    protected function reduceAssertionsMessage(array $assertions)
-    {
-        $messages = [];
-        foreach ($assertions as $assertion) {
-            $messages[] = $assertion->getMessage();
-        }
-        return implode(';', array_filter($messages));
-    }
-    /**
-     * 将断言结果迭代成可存储的字符串
-     * @param array $assertions
-     * @return string
-     */
-    protected function reduceAssertionsResults(array $assertions)
-    {
-        $results = [];
-        foreach ($assertions as $assertion) {
-            $result = implode(':', [
-                $assertion->getMethod(),
-                print_r($assertion->getParameters(), true),
-                $assertion->getExecutedResult() ? 'true' : 'false'
-            ]);
-            $results[] = $result;
-        }
-        return implode(PHP_EOL, $results);
-    }
-
-    /**
-     * 获取状态描述
-     * @param $status
-     * @return string
-     */
-    protected function getStatusText($status)
-    {
-        static $texts = [
-            Examination::STATUS_SUCCESS => '成功',
-            Examination::STATUS_FAILED => '失败',
-            Examination::STATUS_INTERRUPT => '中断',
-            Examination::STATUS_WAITING => '等待'
-        ];
-        return isset($texts[$status]) ? $texts[$status] : '未知';
-    }
 }

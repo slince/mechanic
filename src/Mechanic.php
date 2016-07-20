@@ -10,9 +10,11 @@ use Slince\Di\Container;
 use Slince\Cache\ArrayCache;
 use Slince\Event\Dispatcher;
 use Slince\Event\Event;
+use Slince\Mechanic\Command\Command;
 use Slince\Mechanic\Exception\InvalidArgumentException;
 use Slince\Mechanic\Report\Report;
 use Slince\Mechanic\Report\TestMethodReport;
+use Slince\Mechanic\ReportStrategy\ReportStrategy;
 use slince\Mechanic\TestCase\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Composer\Autoload\ClassLoader;
@@ -50,12 +52,6 @@ class Mechanic
     protected $testSuites;
 
     /**
-     * 测试用例
-     * @var array
-     */
-    protected $testCases = [];
-
-    /**
      * class loader
      * @var ClassLoader
      */
@@ -77,6 +73,16 @@ class Mechanic
      * @var Report
      */
     protected $report;
+
+    /**
+     * @var Command
+     */
+    protected $command;
+
+    /**
+     * @var ReportStrategy[]
+     */
+    protected $reportStrategies = [];
 
     function __construct(array $testSuites = [])
     {
@@ -102,14 +108,6 @@ class Mechanic
     public function getContainer()
     {
         return $this->container;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTestCases()
-    {
-        return $this->testCases;
     }
 
     /**
@@ -167,6 +165,23 @@ class Mechanic
     public function getReport()
     {
         return $this->report;
+    }
+
+    /**
+     * @return ReportStrategy\ReportStrategy[]
+     */
+    public function getReportStrategies()
+    {
+        return $this->reportStrategies;
+    }
+
+    /**
+     * 添加报告策略
+     * @param ReportStrategy $reportStrategy
+     */
+    function addReportStrategy(ReportStrategy $reportStrategy)
+    {
+        $this->reportStrategies[] = $reportStrategy;
     }
 
     /**
@@ -231,6 +246,22 @@ class Mechanic
     }
 
     /**
+     * @param Command $command
+     */
+    public function setCommand($command)
+    {
+        $this->command = $command;
+    }
+
+    /**
+     * @return Command
+     */
+    public function getCommand()
+    {
+        return $this->command;
+    }
+
+    /**
      * 执行的测试套件名称
      * @param array $testSuiteNames
      */
@@ -243,8 +274,10 @@ class Mechanic
         ]));
         foreach ($testSuites as $testSuite) {
             $this->runTestSuite($testSuite);
+            $this->getReport()->addTestSuiteReports($testSuite->getTestSuiteReport());
         }
         $this->dispatcher->dispatch(EventStore::MECHANIC_FINISH, new Event(EventStore::MECHANIC_FINISH, $this));
+        $this->executeReportStrategies();
     }
 
     /**
@@ -290,7 +323,7 @@ class Mechanic
      * 执行测试套件
      * @param TestSuite $testSuite
      */
-    function runTestSuite(TestSuite $testSuite)
+    protected function runTestSuite(TestSuite $testSuite)
     {
         $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTE, new Event(EventStore::TEST_SUITE_EXECUTE, $this, [
             'testSuite' => $testSuite
@@ -308,7 +341,7 @@ class Mechanic
      * 执行测试用例
      * @param TestCase $testCase
      */
-    function runTestCase(TestCase $testCase)
+    protected function runTestCase(TestCase $testCase)
     {
         $testMethods = $this->getTestCaseTestMethods($testCase);
         $this->dispatcher->dispatch(EventStore::TEST_CASE_EXECUTE, new Event(EventStore::TEST_CASE_EXECUTE, $this, [
@@ -348,5 +381,15 @@ class Mechanic
             }
         }
         return $testMethods;
+    }
+
+    /**
+     * 执行所有的报告策略
+     */
+    protected function executeReportStrategies()
+    {
+        foreach ($this->reportStrategies as $reportStrategy) {
+            $reportStrategy->execute();
+        }
     }
 }
