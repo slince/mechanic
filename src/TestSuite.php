@@ -3,7 +3,7 @@
  * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
-namespace slince\Mechanic;
+namespace Slince\Mechanic;
 
 use Cake\Utility\Text;
 use Slince\Mechanic\Report\TestSuiteReport;

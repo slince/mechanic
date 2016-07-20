@@ -5,7 +5,7 @@
  */
 namespace Slince\Mechanic\Report;
 
-use slince\Mechanic\TestSuite;
+use Slince\Mechanic\TestSuite;
 
 class TestSuiteReport
 {

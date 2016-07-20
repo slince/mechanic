@@ -3,7 +3,7 @@
  * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
-namespace slince\Mechanic;
+namespace Slince\Mechanic;
 
 use Slince\Config\Config;
 use Slince\Di\Container;
@@ -89,6 +89,7 @@ class Mechanic
         $this->report = new Report();
         $this->testSuites = $testSuites;
         $this->initialize();
+        $this->classLoader->register();
     }
 
     function initialize()
@@ -176,9 +177,18 @@ class Mechanic
     {
         if (is_null($this->rootPath)) {
             $reflection = new \ReflectionObject($this);
-            $this->rootPath = dirname($reflection->getFileName());
+            $this->rootPath = dirname(dirname($reflection->getFileName()));
         }
         return $this->rootPath;
+    }
+
+    /**
+     * 获取类地址
+     * @return string
+     */
+    function getLibPath()
+    {
+        return $this->getRootPath() . '/src';
     }
 
     /**
@@ -282,12 +292,16 @@ class Mechanic
      */
     function runTestSuite(TestSuite $testSuite)
     {
-        $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTE, new Event(EventStore::TEST_SUITE_EXECUTE, $this));
+        $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTE, new Event(EventStore::TEST_SUITE_EXECUTE, $this, [
+            'testSuite' => $testSuite
+        ]));
         foreach ($testSuite->getTestCases() as $testCase) {
             $this->runTestCase($testCase);
             $testSuite->getTestSuiteReport()->addTestCaseReport($testCase->getTestCaseReport());
         }
-        $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTED, new Event(EventStore::TEST_SUITE_EXECUTED, $this));
+        $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTED, new Event(EventStore::TEST_SUITE_EXECUTED, $this, [
+            'testSuite' => $testSuite
+        ]));
     }
 
     /**

@@ -3,7 +3,7 @@
  * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
-namespace slince\Mechanic\TestCase;
+namespace Slince\Mechanic\TestCase;
 
 use GuzzleHttp\Client;
 use Slince\Mechanic\TestCase\ApiTest\Api;

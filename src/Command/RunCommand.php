@@ -6,17 +6,17 @@
 namespace Slince\Mechanic\Command;
 
 use Slince\Example\AppMechanic;
-use slince\Mechanic\Mechanic;
+use Slince\Mechanic\Mechanic;
 use Slince\Mechanic\EventStore;
+use Slince\Mechanic\TestSuite;
+use Slince\Event\Event;
 use Slince\Mechanic\Exception\InvalidArgumentException;
-use slince\Mechanic\TestSuite;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Finder\Finder;
-use Slince\Event\Event;
 
 class RunCommand extends Command
 {
@@ -42,7 +42,7 @@ class RunCommand extends Command
     {
         $this->setName(static::NAME);
         $this->addArgument('src', InputArgument::OPTIONAL, 'Test project location', getcwd());
-        $this->addOption('suite', 's', InputOption::VALUE_IS_ARRAY & InputOption::VALUE_OPTIONAL, 'Test suite you want execute, default all');
+        $this->addOption('suite', 's', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'Test suite you want execute, default all');
     }
 
     function execute(InputInterface $input, OutputInterface $output)
@@ -99,11 +99,11 @@ class RunCommand extends Command
     function createDefaultTestSuite(Mechanic $mechanic)
     {
         //找出所有的php文件
-        $files = static::getFinder()->files()->name('*.php')->in("{$this->src}/TestCase");
+        $files = static::getFinder()->files()->name('*.php')->in("{$mechanic->getLibPath()}/TestCase");
         $testCases = [];
         foreach ($files as $file) {
             $testCaseClass = "{$mechanic->getNamespace()}\\TestCase\\" . $file->getBasename('.php');
-            $testCases[] = new $testCaseClass();
+            $testCases[] = new $testCaseClass($mechanic);
         }
         return new TestSuite('default', $testCases);
     }
@@ -116,7 +116,7 @@ class RunCommand extends Command
     protected function createTestSuites(Mechanic $mechanic = null)
     {
         //找出所有的php文件
-        $files = static::getFinder()->files()->name('*.php')->in("{$this->src}/TestSuite");
+        $files = static::getFinder()->files()->name('*.php')->in("{$mechanic->getLibPath()}/TestSuite");
         $testSuites = [];
         foreach ($files as $file) {
             $testSuiteClass = "{$mechanic->getNamespace()}\\TestSuite\\" . $file->getBasename('.php');

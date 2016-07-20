@@ -1,7 +1,7 @@
 <?php
 namespace Slince\Example\TestCase;
 
-use slince\Mechanic\TestCase\ApiTestCase;
+use Slince\Mechanic\TestCase\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 class LoginTest extends ApiTestCase

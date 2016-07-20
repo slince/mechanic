@@ -3,9 +3,9 @@
  * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
-namespace slince\Mechanic\TestCase;
+namespace Slince\Mechanic\TestCase;
 
-use slince\Mechanic\Mechanic;
+use Slince\Mechanic\Mechanic;
 use Slince\Cache\ArrayCache;
 use Slince\Mechanic\Report\TestCaseReport;
 

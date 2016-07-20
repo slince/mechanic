@@ -5,7 +5,6 @@
  */
 namespace Slince\Mechanic\Report;
 
-
 class TestMethodReport
 {
     /**
