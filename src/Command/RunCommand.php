@@ -52,6 +52,7 @@ class RunCommand extends Command
 
     function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->input = $input;
         $this->output = $output;
         $this->src = $input->getArgument('src');
         $testSuiteNames = $input->getOption('suite');

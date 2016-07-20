@@ -12,6 +12,7 @@ use Slince\Event\Dispatcher;
 use Slince\Event\Event;
 use Slince\Mechanic\Command\Command;
 use Slince\Mechanic\Exception\InvalidArgumentException;
+use Slince\Mechanic\Exception\RuntimeException;
 use Slince\Mechanic\Report\Report;
 use Slince\Mechanic\Report\TestMethodReport;
 use Slince\Mechanic\ReportStrategy\ReportStrategy;
@@ -84,6 +85,8 @@ class Mechanic
      */
     protected $reportStrategies = [];
 
+    static $instance;
+    
     function __construct(array $testSuites = [])
     {
         $this->container = new Container();
@@ -124,6 +127,21 @@ class Mechanic
     public function getTestSuites()
     {
         return $this->testSuites;
+    }
+
+    /**
+     * 获取指定的测试套件
+     * @param $name
+     * @return null|TestSuite
+     */
+    function getTestSuite($name)
+    {
+        foreach ($this->getTestSuites() as $testSuite) {
+            if (strcasecmp($testSuite->getName(), $name) == 0) {
+                return $testSuite;
+            }
+        }
+        return null;
     }
 
     /**
@@ -384,6 +402,27 @@ class Mechanic
     }
 
     /**
+     * 替换参数里的变量
+     * @param $value
+     * @return mixed
+     */
+    function processValue($value)
+    {
+        if (is_scalar($value)) {
+            return  preg_replace_callback('#\{([a-zA-Z0-9_,]*)\}#i', function ($matches) {
+                if (!isset($this->parameters[$matches[1]])) {
+                    throw new RuntimeException(__("The variable [{0}] does not exists", $matches[1]));
+                }
+                return $this->parameters[$matches[1]];
+            }, $value);
+        } elseif (is_array($value)) {
+            return call_user_func_array([$this, 'processValue'], $value);
+        } else {
+            return $value;
+        }
+    }
+
+    /**
      * 执行所有的报告策略
      */
     protected function executeReportStrategies()
@@ -391,5 +430,13 @@ class Mechanic
         foreach ($this->reportStrategies as $reportStrategy) {
             $reportStrategy->execute();
         }
+    }
+
+    /**
+     * @return Mechanic
+     */
+    static function instance()
+    {
+        return static::$instance;
     }
 }

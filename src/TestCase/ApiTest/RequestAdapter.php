@@ -9,6 +9,7 @@ use Slince\Mechanic\Exception\InvalidArgumentException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
+use Slince\Mechanic\Mechanic;
 
 class RequestAdapter
 {
@@ -24,13 +25,13 @@ class RequestAdapter
     protected $cookies;
 
     /**
-     * @var Runner
+     * @var Mechanic
      */
-    protected $runner;
+    protected $mechanic;
 
-    function __construct(Runner $runner)
+    function __construct(Mechanic $mechanic)
     {
-        $this->runner = $runner;
+        $this->mechanic = $mechanic;
         $this->cookieContainer = new CookieContainer();
         $this->cookies = new CookieJar();
     }
@@ -43,8 +44,8 @@ class RequestAdapter
     function makeRequest(Api $api)
     {
         //预先替换掉参数里的所有变量，注意如果有变量被声明单没有替换的话会终止
-        $method = $this->runner->processValue($api->getMethod());
-        $url = $this->runner->processValue(strval($api->getUrl()));
+        $method = $this->mechanic->processValue($api->getMethod());
+        $url = $this->mechanic->processValue(strval($api->getUrl()));
         return new Request($method, $url);
     }
 
@@ -96,7 +97,7 @@ class RequestAdapter
         }
         //如果证书文件路径不是绝对路径则从工作目录下查找
         if ($cert = $api->getCert()) {
-            if (!$this->runner->getFilesystem()->isAbsolutePath($cert)) {
+            if (!$this->mechanic->getFilesystem()->isAbsolutePath($cert)) {
                 $cert =  realpath(getcwd() .DIRECTORY_SEPARATOR . $cert);
             }
             $options['cert'] = $cert;
@@ -158,7 +159,7 @@ class RequestAdapter
     {
         $posts = [];
         foreach ($files as $name => $file) {
-            if (!$this->runner->getFilesystem()->isAbsolutePath($file)) {
+            if (!$this->mechanic->getFilesystem()->isAbsolutePath($file)) {
                 $file = getcwd() . DIRECTORY_SEPARATOR . $file;
             }
             if (!file_exists($file)) {
@@ -183,7 +184,7 @@ class RequestAdapter
         foreach ($options as $key => $option) {
             $processedOptions[$key] = is_array($option) ?
                 $this->processOptions($option)
-                : $this->runner->processValue($option);
+                : $this->mechanic->processValue($option);
         }
         return $processedOptions;
     }

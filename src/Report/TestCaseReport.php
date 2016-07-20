@@ -171,10 +171,7 @@ class TestCaseReport implements ReportInterface
             'result' => $this->getTestResult(),
             'testMethodNum' => count($this->getTestMethodReports()),
             'testMethodSuccessNum' => count($this->getSuccessTestMethodReports()),
-            'testMethodFailedNum' => count($this->getFailedTestMethodReports()),
-            'testMethodAnalysis' => array_map(function(TestMethodReport $testMethodReport){
-                return $testMethodReport->analyze();
-            }, $this->getTestMethodReports())
+            'testMethodFailedNum' => count($this->getFailedTestMethodReports())
         ];
     }
 }

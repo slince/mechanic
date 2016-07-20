@@ -139,10 +139,7 @@ class Report
             'result' => $this->getTestResult(),
             'testSuiteNum' => count($this->getTestSuiteReports()),
             'testSuiteSuccessNum' => count($this->getSuccessTestSuiteReports()),
-            'testSuiteFailedNum' => count($this->getFailedTestSuiteReports()),
-            'testSuiteAnalysis' => array_map(function(TestSuiteReport $testSuiteReport){
-                return $testSuiteReport->analyze();
-            }, $this->getTestSuiteReports())
+            'testSuiteFailedNum' => count($this->getFailedTestSuiteReports())
         ];
     }
 }

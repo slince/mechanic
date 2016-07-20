@@ -147,10 +147,7 @@ class TestSuiteReport implements ReportInterface
             'result' => $this->getTestResult(true),
             'testCaseNum' => count($this->getTestCaseReports()),
             'testCaseSuccessNum' => count($this->getSuccessTestCaseReports()),
-            'testCaseFailedNum' => count($this->getFailedTestCaseReports()),
-            'testCaseAnalysis' => array_map(function(TestCaseReport $testCaseReport){
-                return $testCaseReport->analyze();
-            }, $this->getTestCaseReports())
+            'testCaseFailedNum' => count($this->getFailedTestCaseReports())
         ];
     }
 }

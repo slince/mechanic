@@ -20,6 +20,7 @@ class ApiTestCase extends TestCase
      * @var RequestAdapter
      */
     static $requestAdapter;
+
     /**
      * 获取请求客户端
      * @return Client
@@ -33,12 +34,24 @@ class ApiTestCase extends TestCase
     }
 
     /**
+     * 获取请求适配器
+     * @return RequestAdapter
+     */
+    static function getRequestAdapter()
+    {
+        if (is_null(static::$requestAdapter)) {
+            static::$requestAdapter = new RequestAdapter();
+        }
+        return static::$requestAdapter;
+    }
+
+    /**
      * 创建api
      * @return Api
      */
     function createApi()
     {
-        return $this->getMechanic()->getContainer()->create('Slince\\Mechanic\\Api', func_get_args());
+        return $this->getMechanic()->getContainer()->create('Slince\\Mechanic\\TestCase\\ApiTest\\Api', func_get_args());
     }
 
     /**
@@ -48,8 +61,8 @@ class ApiTestCase extends TestCase
      */
     function request(Api $api)
     {
-        $request = static::$requestAdapter->makeRequest($api);
-        $options = static::$requestAdapter->getOptions($api);
+        $request = static::getRequestAdapter()->makeRequest($api);
+        $options = static::getRequestAdapter()->getOptions($api);
         return static::getHttpClient()->send($request, $options);
     }
 }

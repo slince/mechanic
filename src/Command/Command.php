@@ -6,8 +6,8 @@
 namespace Slince\Mechanic\Command;
 
 use Symfony\Component\Console\Command\Command as BaseCommand;
-use Symfony\Component\Console\Input\InputOption;
-use PHPExcel;
+use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Command extends BaseCommand
@@ -25,9 +25,22 @@ class Command extends BaseCommand
     const CONFIG_OPTION = 'config';
 
     /**
+     * @var InputInterface
+     */
+    protected $input;
+
+    /**
      * @var OutputInterface
      */
     protected $output;
+
+    /**
+     * @return InputInterface
+     */
+    public function getInput()
+    {
+        return $this->input;
+    }
 
     /**
      * @return OutputInterface
@@ -36,7 +49,7 @@ class Command extends BaseCommand
     {
         return $this->output;
     }
-    
+
     protected function makeReport(Runner $runner)
     {
         $excel = new PHPExcel();

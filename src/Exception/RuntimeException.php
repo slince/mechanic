@@ -1,9 +1,9 @@
 <?php
 /**
- * slince runner library
+ * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
-namespace Slince\Runner\Exception;
+namespace Slince\Mechanic\Exception;
 
 class RuntimeException extends \RuntimeException
 {
