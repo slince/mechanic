@@ -41,7 +41,7 @@ class TestSuiteReport
         $this->testSuite = $testSuite;
     }
 
-    function addTestCaseReport(TestSuiteReport $testSuiteReport)
+    function addTestCaseReport(TestCaseReport $testSuiteReport)
     {
         $this->testCaseReports[] = $testSuiteReport;
     }

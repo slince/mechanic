@@ -5,13 +5,14 @@
  */
 namespace Slince\Mechanic\Command;
 
-use Slince\Example\AppRunner;
-use Slince\Runner\EventStore;
-use Slince\Runner\ExaminationChain;
-use Slince\Runner\Exception\InvalidArgumentException;
-use Slince\Runner\Runner;
+use Slince\Example\AppMechanic;
+use slince\Mechanic\Mechanic;
+use Slince\Mechanic\EventStore;
+use Slince\Mechanic\Exception\InvalidArgumentException;
+use slince\Mechanic\TestSuite;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Finder\Finder;
@@ -33,101 +34,95 @@ class RunCommand extends Command
     protected $src;
 
     /**
-     * @var ExaminationChain
+     * @var Mechanic
      */
-    protected $examinations;
-
-    /**
-     * @var Runner
-     */
-    protected $runner;
+    protected $mechanic;
 
     function configure()
     {
         $this->setName(static::NAME);
-        $this->addArgument('src', InputArgument::OPTIONAL, 'Test project location', getcwd() . '/src');
+        $this->addArgument('src', InputArgument::OPTIONAL, 'Test project location', getcwd());
+        $this->addOption('suite', 's', InputOption::VALUE_IS_ARRAY & InputOption::VALUE_OPTIONAL, 'Test suite you want execute, default all');
     }
 
     function execute(InputInterface $input, OutputInterface $output)
     {
         $this->src = $input->getArgument('src');
-        $bootFile = "{$this->src}/AppRunner.php";
+        $testSuiteNames = $input->getOption('suite');
+        $bootFile = "{$this->src}/src/AppMechanic.php";
         if (!file_exists($bootFile)) {
-            throw new InvalidArgumentException(sprintf("You should create \"AppRunner.php\" at [%s]", $this->src));
+            throw new InvalidArgumentException(sprintf("You should create \"AppMechanic.php\" at [%s]", $this->src . '/src'));
         }
         include $bootFile;
-        $this->examinations = new ExaminationChain();
-        $this->runner = new AppRunner($this->examinations);
-        $this->examinations->addAll($this->createExaminations($this->runner));
-        $this->createTestCases($this->runner);
-        $this->bindEventsForUi($this->runner, $output);
-        $this->runner->run();
+        $mechanic = new AppMechanic();
+        $testSuites = $this->createTestSuites($mechanic);
+        $testSuites = empty($testSuites) ? [$this->createDefaultTestSuite($mechanic)] : $testSuites;
+        $mechanic->setTestSuites($testSuites);
+        $this->bindEventsForUi($mechanic, $output);
+        $mechanic->run($testSuiteNames);
     }
 
     /**
      * 绑定事件
-     * @param Runner $runner
+     * @param Mechanic $mechanic
      * @param OutputInterface $output
      */
-    protected function bindEventsForUi(Runner $runner, OutputInterface $output)
+    protected function bindEventsForUi(Mechanic $mechanic, OutputInterface $output)
     {
-        $chain = $runner->getExaminationChain();
-        $dispatcher = $runner->getDispatcher();
-        $dispatcher->bind(EventStore::RUNNER_RUN, function() use ($output, $chain){
-            $examinationNum = count($chain);
-            $output->writeln("Runner will be performed {$examinationNum} tasks, Please wait a moment");
+        $dispatcher = $mechanic->getDispatcher();
+        $dispatcher->bind(EventStore::MECHANIC_RUN, function(Event $event) use ($output){
+            $testSuites = $event->getArgument('testSuites');
+            $total = count($testSuites);
+            $output->writeln("Mechanic will be performed {$total} test suites, Please wait a moment");
             $output->write(PHP_EOL);
         });
-        //执行新的测试任务
-        $dispatcher->bind(EventStore::EXAMINATION_EXECUTE, function(Event $event) use($output){
-            $examination = $event->getArgument('examination');
-            $output->writeln("Processing examination \"{$examination->getName()}\"");
+        //执行单元套件
+        $dispatcher->bind(EventStore::TEST_SUITE_EXECUTE, function(Event $event) use($output){
+            $testSuite = $event->getArgument('testSuite');
+            $output->writeln("Processing test suite \"{$testSuite->getName()}\"");
         });
         //测试任务执行完毕
-        $dispatcher->bind(EventStore::EXAMINATION_EXECUTED, function(Event $event) use($output){
-            $examination = $event->getArgument('examination');
+        $dispatcher->bind(EventStore::TEST_SUITE_EXECUTED, function(Event $event) use($output){
+            $testSuite = $event->getArgument('testSuite');
         });
-        $dispatcher->bind(EventStore::RUNNER_FINISH, function() use ($output){
+        $dispatcher->bind(EventStore::MECHANIC_FINISH, function() use ($output){
             $output->writeln(PHP_EOL);
-            $output->writeln("Runner stop,Generating test report");
-        });
-        $dispatcher->bind(EventStore::RUNNER_FINISH, function() use ($runner){
-            $this->makeReport($runner);
+            $output->writeln("Mechanic stop");
         });
     }
 
     /**
-     * 创建测试实例
-     * @param Runner $runner
-     * @return array
+     * 创建默认的测试套件
+     * @param Mechanic $mechanic
+     * @return TestSuite
      */
-    protected function createExaminations(Runner $runner)
-    {
-        //找出所有的php文件
-        $files = static::getFinder()->files()->name('*.php')->in("{$this->src}/Examination");
-        $examinations = [];
-        foreach ($files as $file) {
-            $examinationClass = "{$runner->getNamespace()}\\Examination\\" . $file->getBasename('.php');
-            $examinations[] = new $examinationClass();
-        }
-        return $examinations;
-    }
-
-    /**
-     * 创建测试用例
-     * @param Runner $runner
-     * @return array
-     */
-    protected function createTestCases(Runner $runner)
+    function createDefaultTestSuite(Mechanic $mechanic)
     {
         //找出所有的php文件
         $files = static::getFinder()->files()->name('*.php')->in("{$this->src}/TestCase");
         $testCases = [];
         foreach ($files as $file) {
-            $testCaseClass = "{$runner->getNamespace()}\\TestCase\\" . $file->getBasename('.php');
-            $testCases[] = new $testCaseClass($runner);
+            $testCaseClass = "{$mechanic->getNamespace()}\\TestCase\\" . $file->getBasename('.php');
+            $testCases[] = new $testCaseClass();
         }
-        return $testCases;
+        return new TestSuite('default', $testCases);
+    }
+
+    /**
+     * 创建测试套件
+     * @param Mechanic $mechanic
+     * @return array
+     */
+    protected function createTestSuites(Mechanic $mechanic = null)
+    {
+        //找出所有的php文件
+        $files = static::getFinder()->files()->name('*.php')->in("{$this->src}/TestSuite");
+        $testSuites = [];
+        foreach ($files as $file) {
+            $testSuiteClass = "{$mechanic->getNamespace()}\\TestSuite\\" . $file->getBasename('.php');
+            $testSuites[] = new $testSuiteClass();
+        }
+        return $testSuites;
     }
 
     /**

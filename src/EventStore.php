@@ -24,24 +24,24 @@ class EventStore
      * 测试项开始执行测试事件
      * @var string
      */
-    const TESTCASE_EXECUTE = 'testCase.execute';
+    const TEST_SUITE_EXECUTE = 'testSuite.execute';
 
     /**
      * 测试项开始执行测试结束事件
      * @var string
      */
-    const TESTCASE_EXECUTED = 'testCase.executed';
+    const TEST_SUITE_EXECUTED = 'testSuite.executed';
 
     /**
-     * 请求发起之前事件
+     * 测试项开始执行测试事件
      * @var string
      */
-    const TESTCASE_PRE_REQUEST = 'testCase.preRequest';
+    const TEST_CASE_EXECUTE = 'testCase.execute';
 
     /**
-     * 请求发起之后事件
+     * 测试项开始执行测试结束事件
      * @var string
      */
-    const TESTCASEAFTER_REQUEST = 'testCase.afterRequest';
+    const TEST_CASE_EXECUTED = 'testCase.executed';
 
 }

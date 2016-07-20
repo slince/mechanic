@@ -9,6 +9,8 @@ use Slince\Config\Config;
 use Slince\Di\Container;
 use Slince\Cache\ArrayCache;
 use Slince\Event\Dispatcher;
+use Slince\Event\Event;
+use Slince\Mechanic\Exception\InvalidArgumentException;
 use Slince\Mechanic\Report\Report;
 use Slince\Mechanic\Report\TestMethodReport;
 use slince\Mechanic\TestCase\TestCase;
@@ -76,7 +78,7 @@ class Mechanic
      */
     protected $report;
 
-    function __construct()
+    function __construct(array $testSuites = [])
     {
         $this->container = new Container();
         $this->dispatcher = new Dispatcher();
@@ -85,6 +87,7 @@ class Mechanic
         $this->configs = new Config();
         $this->classLoader = new ClassLoader();
         $this->report = new Report();
+        $this->testSuites = $testSuites;
         $this->initialize();
     }
 
@@ -150,6 +153,22 @@ class Mechanic
     }
 
     /**
+     * @return Dispatcher
+     */
+    public function getDispatcher()
+    {
+        return $this->dispatcher;
+    }
+
+    /**
+     * @return Report
+     */
+    public function getReport()
+    {
+        return $this->report;
+    }
+
+    /**
      * 获取根目录
      * @return string
      */
@@ -172,6 +191,24 @@ class Mechanic
     }
 
     /**
+     * 获取报告文件目录
+     * @return string
+     */
+    function getReportPath()
+    {
+        return $this->getRootPath() . '/reports';
+    }
+
+    /**
+     * 获取资源文件目录
+     * @return string
+     */
+    function getAssetPath()
+    {
+        return $this->getRootPath() . '/assets';
+    }
+
+    /**
      * 获取当前application的命名空间
      * @return string
      */
@@ -184,22 +221,73 @@ class Mechanic
     }
 
     /**
-     * @param array $testSuites
+     * 执行的测试套件名称
+     * @param array $testSuiteNames
      */
-    function run(array $testSuites)
+    function run(array $testSuiteNames = [])
     {
-        $this->testSuites = $testSuites;
-        foreach ($this->testSuites as $testSuite) {
+        $this->checkTestSuiteNames($testSuiteNames);
+        $testSuites = $this->getWaitingExecuteTestSuites($testSuiteNames);
+        $this->dispatcher->dispatch(EventStore::MECHANIC_RUN, new Event(EventStore::MECHANIC_RUN, $this, [
+            'testSuites' => $testSuites
+        ]));
+        foreach ($testSuites as $testSuite) {
             $this->runTestSuite($testSuite);
         }
+        $this->dispatcher->dispatch(EventStore::MECHANIC_FINISH, new Event(EventStore::MECHANIC_FINISH, $this));
     }
 
+    /**
+     * 检查需要执行的测试套件名
+     * @param array $testSuiteNames
+     * @return bool
+     */
+    protected function checkTestSuiteNames(array $testSuiteNames)
+    {
+        if (!empty($testSuiteNames)) {
+            $notExistsTestSuiteNames = array_filter($testSuiteNames, function($testSuiteName){
+                foreach ($this->testSuites as $testSuite) {
+                    if (strcasecmp($testSuite->getName(), $testSuiteName) == 0) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            if (!empty($notExistsTestSuiteNames)){
+                throw new InvalidArgumentException(sprintf("Test suite [%s] does not exists",
+                    implode(',', $notExistsTestSuiteNames)));
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 获取需要执行的测试套件
+     * @param array $testSuiteNames
+     * @return array|TestSuite[]
+     */
+    protected function getWaitingExecuteTestSuites(array $testSuiteNames)
+    {
+        if (empty($testSuiteNames)) {
+            return $this->testSuites;
+        }
+        return array_filter($this->testSuites, function(TestSuite $testSuite) use ($testSuiteNames){
+            return in_array($testSuite->getName(), $testSuiteNames);
+        });
+    }
+
+    /**
+     * 执行测试套件
+     * @param TestSuite $testSuite
+     */
     function runTestSuite(TestSuite $testSuite)
     {
+        $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTE, new Event(EventStore::TEST_SUITE_EXECUTE, $this));
         foreach ($testSuite->getTestCases() as $testCase) {
             $this->runTestCase($testCase);
             $testSuite->getTestSuiteReport()->addTestCaseReport($testCase->getTestCaseReport());
         }
+        $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTED, new Event(EventStore::TEST_SUITE_EXECUTED, $this));
     }
 
     /**
@@ -209,6 +297,10 @@ class Mechanic
     function runTestCase(TestCase $testCase)
     {
         $testMethods = $this->getTestCaseTestMethods($testCase);
+        $this->dispatcher->dispatch(EventStore::TEST_CASE_EXECUTE, new Event(EventStore::TEST_CASE_EXECUTE, $this), [
+            'testCase' => $testCase,
+            'testMethods' => $testMethods
+        ]);
         foreach ($testMethods as $testMethod) {
             try {
                 //执行用例方法，如果方法没有明确返回false，则用例方法算执行成功
@@ -222,6 +314,9 @@ class Mechanic
             //记录用例方法的测试报告到用例报告
             $testCase->getTestCaseReport()->addTestMethodReport(TestMethodReport::create($testMethod, $result, [$message]));
         }
+        $this->dispatcher->dispatch(EventStore::TEST_CASE_EXECUTED, new Event(EventStore::TEST_CASE_EXECUTED, $this), [
+            'testCase' => $testCase
+        ]);
     }
 
     /**
@@ -231,7 +326,7 @@ class Mechanic
     protected function getTestCaseTestMethods(TestCase $testCase)
     {
         $reflection = new \ReflectionObject($testCase);
-        $publicMethods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+        $publicMethods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
         $testMethods = [];
         foreach ($publicMethods as $method) {
             if (strcasecmp(substr($method->getName(), 0, 4), 'test') == 0) {

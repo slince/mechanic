@@ -9,7 +9,7 @@ use Cake\Utility\Text;
 use Slince\Mechanic\Report\TestSuiteReport;
 use slince\Mechanic\TestCase\TestCase;
 
-abstract class TestSuite
+class TestSuite
 {
     /**
      * 测试套件名称
@@ -27,8 +27,10 @@ abstract class TestSuite
      */
     protected $testSuiteReport;
 
-    function __construct()
+    function __construct($name = null, array $testCases = [])
     {
+        $this->name = $name;
+        $this->testCases = $testCases;
         $this->testSuiteReport = new TestSuiteReport($this);
     }
 
@@ -36,7 +38,8 @@ abstract class TestSuite
      * 测试套件声明
      * @return mixed
      */
-    abstract function suite();
+    function suite()
+    {}
 
     /**
      * @param string $name
@@ -63,6 +66,14 @@ abstract class TestSuite
     function addTestCase(TestCase $testCase)
     {
         $this->testCases[] = $testCase;
+    }
+
+    /**
+     * @param TestCase\TestCase[] $testCases
+     */
+    public function setTestCases($testCases)
+    {
+        $this->testCases = $testCases;
     }
 
     /**
