@@ -61,4 +61,17 @@ class TestSuiteReport
     {
         return $this->testCaseReports;
     }
+
+    /**
+     * @return bool
+     */
+    public function getTestResult()
+    {
+        foreach ($this->getTestCaseReports() as $testCaseReport) {
+            if (!$testCaseReport->getTestResult()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

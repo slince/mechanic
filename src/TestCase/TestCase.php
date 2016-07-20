@@ -8,6 +8,7 @@ namespace Slince\Mechanic\TestCase;
 use Slince\Mechanic\Mechanic;
 use Slince\Cache\ArrayCache;
 use Slince\Mechanic\Report\TestCaseReport;
+use Slince\Mechanic\TestSuite;
 
 class TestCase
 {
@@ -15,6 +16,11 @@ class TestCase
      * @var Mechanic
      */
     protected $mechanic;
+
+    /**
+     * @var TestSuite
+     */
+    protected $testSuite;
 
     /**
      * @var TestCaseReport
@@ -53,7 +59,23 @@ class TestCase
     }
 
     /**
-     * sheng
+     * @param TestSuite $testSuite
+     */
+    public function setTestSuite($testSuite)
+    {
+        $this->testSuite = $testSuite;
+    }
+
+    /**
+     * @return TestSuite
+     */
+    public function getTestSuite()
+    {
+        return $this->testSuite;
+    }
+    
+    /**
+     * 创建测试报告
      * @return TestCaseReport
      */
     protected function createReport()

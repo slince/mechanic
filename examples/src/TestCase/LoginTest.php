@@ -14,7 +14,8 @@ class LoginTest extends ApiTestCase
             ->setQuery([
                 'email' => 'test@test.cn',
                 'password' => '123456'
-            ]);
+            ])
+            ->setProxy('tcp://127.0.0.1:8888');
         $response = $this->request($api);
         $responseData = json_decode($response);
         Assert::eq($response->getStatusCode(), 200, '服务器连接错误');

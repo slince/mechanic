@@ -61,8 +61,8 @@ class Report
      */
     public function getTestResult()
     {
-        foreach ($this->getTestCaseReports() as $testCaseReport) {
-            if (!($testCaseReport->getPreRequestResult() && $testCaseReport->getAfterRequestResult())) {
+        foreach ($this->getTestSuiteReports() as $testSuiteReport) {
+            if (!$testSuiteReport->getTestResult()) {
                 return false;
             }
         }
@@ -70,7 +70,7 @@ class Report
     }
 
     /**
-     * @return array
+     * @return TestSuiteReport[]
      */
     public function getTestSuiteReports()
     {

@@ -311,10 +311,10 @@ class Mechanic
     function runTestCase(TestCase $testCase)
     {
         $testMethods = $this->getTestCaseTestMethods($testCase);
-        $this->dispatcher->dispatch(EventStore::TEST_CASE_EXECUTE, new Event(EventStore::TEST_CASE_EXECUTE, $this), [
+        $this->dispatcher->dispatch(EventStore::TEST_CASE_EXECUTE, new Event(EventStore::TEST_CASE_EXECUTE, $this, [
             'testCase' => $testCase,
             'testMethods' => $testMethods
-        ]);
+        ]));
         foreach ($testMethods as $testMethod) {
             try {
                 //执行用例方法，如果方法没有明确返回false，则用例方法算执行成功
@@ -328,9 +328,9 @@ class Mechanic
             //记录用例方法的测试报告到用例报告
             $testCase->getTestCaseReport()->addTestMethodReport(TestMethodReport::create($testMethod, $result, [$message]));
         }
-        $this->dispatcher->dispatch(EventStore::TEST_CASE_EXECUTED, new Event(EventStore::TEST_CASE_EXECUTED, $this), [
+        $this->dispatcher->dispatch(EventStore::TEST_CASE_EXECUTED, new Event(EventStore::TEST_CASE_EXECUTED, $this, [
             'testCase' => $testCase
-        ]);
+        ]));
     }
 
     /**

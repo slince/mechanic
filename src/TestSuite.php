@@ -30,7 +30,7 @@ class TestSuite
     function __construct($name = null, array $testCases = [])
     {
         $this->name = $name;
-        $this->testCases = $testCases;
+        $this->setTestCases($testCases);
         $this->testSuiteReport = new TestSuiteReport($this);
     }
 
@@ -65,6 +65,7 @@ class TestSuite
      */
     function addTestCase(TestCase $testCase)
     {
+        $testCase->setTestSuite($this);
         $this->testCases[] = $testCase;
     }
 
@@ -73,7 +74,10 @@ class TestSuite
      */
     public function setTestCases($testCases)
     {
-        $this->testCases = $testCases;
+        $this->testCases = [];
+        foreach ($testCases as $testCase) {
+            $this->addTestCase($testCase);
+        }
     }
 
     /**

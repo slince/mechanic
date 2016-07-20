@@ -104,4 +104,17 @@ class TestCaseReport
         $testMethodReport->setTestCaseReport($this);
         $this->testMethodReports[] = $testMethodReport;
     }
+
+    /**
+     * @return bool
+     */
+    public function getTestResult()
+    {
+        foreach ($this->getTestMethodReports() as $testMethodReport) {
+            if (!$testMethodReport->getResult()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

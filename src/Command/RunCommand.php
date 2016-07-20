@@ -38,6 +38,11 @@ class RunCommand extends Command
      */
     protected $mechanic;
 
+    /**
+     * @var ProgressBar[]
+     */
+    protected $progressBars = [];
+
     function configure()
     {
         $this->setName(static::NAME);
@@ -76,14 +81,26 @@ class RunCommand extends Command
             $output->writeln("Mechanic will be performed {$total} test suites, Please wait a moment");
             $output->write(PHP_EOL);
         });
-        //执行单元套件
+        //执行测试套件
         $dispatcher->bind(EventStore::TEST_SUITE_EXECUTE, function(Event $event) use($output){
             $testSuite = $event->getArgument('testSuite');
             $output->writeln("Processing test suite \"{$testSuite->getName()}\"");
+            $this->progressBars[$testSuite->getName()] = new ProgressBar($output, count($testSuite->getTestCases()));
+            $this->progressBars[$testSuite->getName()]->start();
         });
-        //测试任务执行完毕
+        //测试套件执行完毕
         $dispatcher->bind(EventStore::TEST_SUITE_EXECUTED, function(Event $event) use($output){
             $testSuite = $event->getArgument('testSuite');
+            $this->progressBars[$testSuite->getName()]->finish();
+        });
+        //执行测试用例
+        $dispatcher->bind(EventStore::TEST_CASE_EXECUTE, function(Event $event) use($output){
+            $testCase = $event->getArgument('testCase');
+            $this->progressBars[$testCase->getTestSuite()->getName()]->advance(1);
+        });
+        //测试用例执行完毕
+        $dispatcher->bind(EventStore::TEST_SUITE_EXECUTED, function(Event $event) use($output){
+            $testCase = $event->getArgument('testCase');
         });
         $dispatcher->bind(EventStore::MECHANIC_FINISH, function() use ($output){
             $output->writeln(PHP_EOL);
