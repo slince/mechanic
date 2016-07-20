@@ -9,6 +9,7 @@ use Slince\Config\Config;
 use Slince\Di\Container;
 use Slince\Cache\ArrayCache;
 use Slince\Event\Dispatcher;
+use Slince\Mechanic\Report\Report;
 use Slince\Mechanic\Report\TestMethodReport;
 use slince\Mechanic\TestCase\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -40,6 +41,12 @@ class Mechanic
      * @var Config
      */
     protected $configs;
+
+    /**
+     * @var TestSuite[]
+     */
+    protected $testSuites;
+
     /**
      * 测试用例
      * @var array
@@ -64,6 +71,11 @@ class Mechanic
      */
     protected $namespace;
 
+    /**
+     * @var Report
+     */
+    protected $report;
+
     function __construct()
     {
         $this->container = new Container();
@@ -72,6 +84,7 @@ class Mechanic
         $this->filesystem = new Filesystem();
         $this->configs = new Config();
         $this->classLoader = new ClassLoader();
+        $this->report = new Report();
         $this->initialize();
     }
 
@@ -93,6 +106,22 @@ class Mechanic
     public function getTestCases()
     {
         return $this->testCases;
+    }
+
+    /**
+     * @param TestSuite[] $testSuites
+     */
+    public function setTestSuites($testSuites)
+    {
+        $this->testSuites = $testSuites;
+    }
+
+    /**
+     * @return TestSuite[]
+     */
+    public function getTestSuites()
+    {
+        return $this->testSuites;
     }
 
     /**
@@ -118,52 +147,6 @@ class Mechanic
     public function getConfigs()
     {
         return $this->configs;
-    }
-
-    function run()
-    {
-        foreach ($this->testCases as $testCase) {
-            $this->runTestCase($testCase);
-        }
-    }
-
-    /**
-     * 执行测试用例
-     * @param TestCase $testCase
-     */
-    function runTestCase(TestCase $testCase)
-    {
-        $testMethods = $this->getTestCaseTestMethods($testCase);
-        foreach ($testMethods as $testMethod) {
-            try {
-                //执行用例方法，如果方法没有明确返回false，则用例方法算执行成功
-                $result = $testMethod->invoke();
-                $result = ($result !== false);
-                $message = 'Fail';
-            } catch (\Exception $e) {
-                $result = false;
-                $message = $e->getMessage();
-            }
-            //记录用例方法的测试报告到用例报告
-            $testCase->getTestCaseReport()->addTestMethodReport(TestMethodReport::create($testMethod, $result, [$message]));
-        }
-    }
-
-    /**
-     * @param TestCase $testCase
-     * @return \ReflectionMethod[]
-     */
-    protected function getTestCaseTestMethods(TestCase $testCase)
-    {
-        $reflection = new \ReflectionObject($testCase);
-        $publicMethods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
-        $testMethods = [];
-        foreach ($publicMethods as $method) {
-            if (strcasecmp(substr($method->getName(), 0, 4), 'test') == 0) {
-                $testMethods[] = $method;
-            }
-        }
-        return $testMethods;
     }
 
     /**
@@ -198,5 +181,63 @@ class Mechanic
             $this->namespace = (new \ReflectionClass($this))->getNamespaceName();
         }
         return $this->namespace;
+    }
+
+    /**
+     * @param array $testSuites
+     */
+    function run(array $testSuites)
+    {
+        $this->testSuites = $testSuites;
+        foreach ($this->testSuites as $testSuite) {
+            $this->runTestSuite($testSuite);
+        }
+    }
+
+    function runTestSuite(TestSuite $testSuite)
+    {
+        foreach ($testSuite->getTestCases() as $testCase) {
+            $this->runTestCase($testCase);
+            $testSuite->getTestSuiteReport()->addTestCaseReport($testCase->getTestCaseReport());
+        }
+    }
+
+    /**
+     * 执行测试用例
+     * @param TestCase $testCase
+     */
+    function runTestCase(TestCase $testCase)
+    {
+        $testMethods = $this->getTestCaseTestMethods($testCase);
+        foreach ($testMethods as $testMethod) {
+            try {
+                //执行用例方法，如果方法没有明确返回false，则用例方法算执行成功
+                $result = $testMethod->invoke($testCase);
+                $result = ($result !== false);
+                $message = 'Fail';
+            } catch (\Exception $e) {
+                $result = false;
+                $message = $e->getMessage();
+            }
+            //记录用例方法的测试报告到用例报告
+            $testCase->getTestCaseReport()->addTestMethodReport(TestMethodReport::create($testMethod, $result, [$message]));
+        }
+    }
+
+    /**
+     * @param TestCase $testCase
+     * @return \ReflectionMethod[]
+     */
+    protected function getTestCaseTestMethods(TestCase $testCase)
+    {
+        $reflection = new \ReflectionObject($testCase);
+        $publicMethods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+        $testMethods = [];
+        foreach ($publicMethods as $method) {
+            if (strcasecmp(substr($method->getName(), 0, 4), 'test') == 0) {
+                $testMethods[] = $method;
+            }
+        }
+        return $testMethods;
     }
 }

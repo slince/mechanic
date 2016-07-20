@@ -14,6 +14,10 @@ class ReportStrategy
      */
     protected $report;
 
+    /**
+     * 获取测试报告
+     * @return Report
+     */
     function getReport()
     {
         return $this->report;

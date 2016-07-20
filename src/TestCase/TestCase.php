@@ -52,6 +52,10 @@ class TestCase
         return $this->testCaseReport;
     }
 
+    /**
+     * sheng
+     * @return TestCaseReport
+     */
     protected function createReport()
     {
         return new TestCaseReport();

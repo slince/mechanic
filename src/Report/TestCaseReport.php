@@ -1,6 +1,6 @@
 <?php
 /**
- * slince runner library
+ * slince mechanic library
  * @author Tao <taosikai@yeah.net>
  */
 namespace Slince\Mechanic\Report;

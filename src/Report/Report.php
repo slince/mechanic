@@ -14,16 +14,11 @@ class Report
     protected $parameters = [];
 
     /**
-     * 测试用例的测试报告
+     * 测试套件测试报告
      * @var array
      */
-    protected $testCaseReports = [];
+    protected $testSuiteReports = [];
 
-    /**
-     * 测试结果
-     * @var boolean
-     */
-    protected $testResult;
     /**
      * 设置参数
      * @param $name
@@ -62,14 +57,6 @@ class Report
     }
 
     /**
-     * @param $testResult
-     */
-    public function setTestResult($testResult)
-    {
-        $this->testResult = $testResult;
-    }
-
-    /**
      * @return bool
      */
     public function getTestResult()
@@ -85,25 +72,25 @@ class Report
     /**
      * @return array
      */
-    public function getTestCaseReports()
+    public function getTestSuiteReports()
     {
-        return $this->testCaseReports;
+        return $this->testSuiteReports;
     }
 
     /**
-     * @param array $testCaseReports
+     * @param array $testSuiteReports
      */
-    public function setTestCaseReports($testCaseReports)
+    public function setTestSuiteReports($testSuiteReports)
     {
-        $this->testCaseReports = $testCaseReports;
+        $this->testSuiteReports = $testSuiteReports;
     }
 
     /**
-     * @param TestCaseReport $testCaseReport
+     * @param TestSuiteReport $testSuiteReport
      */
-    public function addTestCaseReports($testCaseReport)
+    public function addTestSuiteReports(TestSuiteReport $testSuiteReport)
     {
-        $this->testCaseReports[] = $testCaseReport;
+        $this->testSuiteReports[] = $testSuiteReport;
     }
 
     /**
