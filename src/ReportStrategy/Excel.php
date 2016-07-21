@@ -6,37 +6,50 @@
 namespace Slince\Mechanic\ReportStrategy;
 
 use Slince\Mechanic\Mechanic;
+use PHPExcel;
 
 class Excel extends ReportStrategy
 {
     /**
-     * office excel 2007
+     * office excel 2007，默认是该类型
      * @var string
      */
-    const EXCEL2007 = 'Excel2007';
+    const TYPE_EXCEL2007 = 'Excel2007';
 
     /**
      * office excel
      * @var string
      */
-    const EXCEL5 = 'Excel5';
+    const TYPE_EXCEL5 = 'Excel5';
 
     /**
      * @var string
      */
     protected $type;
 
+    /**
+     * @var PHPExcel
+     */
     protected $excel;
 
-    function __construct(Mechanic $mechanic, $type = self::EXCEL2007)
+    /**
+     * 文件扩展名
+     * @var array
+     */
+    protected static $extensions = [
+        self::TYPE_EXCEL5 => '.xls',
+        self::TYPE_EXCEL2007 => '.xlsx'
+    ];
+
+    function __construct(Mechanic $mechanic, $type = self::TYPE_EXCEL2007)
     {
         $this->type = $type;
-        $this->excel = new \PHPExcel();
+        $this->excel = new PHPExcel();
         parent::__construct($mechanic);
     }
 
     /**
-     * @return \PHPExcel
+     * @return PHPExcel
      */
     public function getExcel()
     {
@@ -61,16 +74,53 @@ class Excel extends ReportStrategy
 
     function execute()
     {
+        $this->initializeExcel($this->excel);
+        $this->excel->addSheet($this->makeSummarySheet(), 0);
+        $this->excel->addSheet($this->makeSummarySheet(), 1);
+        $writer = PHPExcel_IOFactory::createWriter($this->excel, $this->type);
+        $writer->save($this->getFileName());
+    }
 
+    /**
+     * 初始化excel
+     * @param PHPExcel $excel
+     */
+    protected function initializeExcel(PHPExcel $excel)
+    {
+        $excel->getProperties()->setCreator('Mechanic')
+            ->setLastModifiedBy('Mechanic')
+            ->setTitle('Mechanic Test Repoprt')
+            ->setSubject('Mechanic Test Repoprt')
+            ->setDescription('Mechanic Test Repoprt')
+            ->setKeywords('Mechanic Test Report')
+            ->setCategory("Report");
+    }
+
+    /**
+     * 获取文件名
+     * @return string
+     */
+    protected function getFileName()
+    {
+        return $this->getMechanic()->getReportPath() . DIRECTORY_SEPARATOR . time() . rand(10, 99) . $this->getExtension();
+    }
+
+    /**
+     * 获取文件扩展名
+     * @return string
+     */
+    protected function getExtension()
+    {
+        return isset(static::$extensions[$this->type]) ? static::$extensions[$this->type] : '';
     }
 
     /**
      * 创建summary sheet
-     * @return \PHPExcel_Worksheet
+     * @return PHPExcel_Worksheet
      */
-    function makeSummarySheet()
+    protected function makeSummarySheet()
     {
-        $sheet = new \PHPExcel_Worksheet($this->getExcel(), __('Summary'));
+        $sheet = new PHPExcel_Worksheet($this->getExcel(), __('Summary'));
         $analysis = $this->getReport()->analyze();
         $sheet->setCellValue('A1', __('Execute Result'))
             ->setCellValue('B1',  __('Test Suite Number'))
@@ -85,11 +135,11 @@ class Excel extends ReportStrategy
 
     /**
      * 创建测试套件概要
-     * @return \PHPExcel_Worksheet
+     * @return PHPExcel_Worksheet
      */
-    protected function makeTestSuiteSummaryTable()
+    protected function makeTestSuiteSummarySheet()
     {
-        $sheet = new \PHPExcel_Worksheet($this->getExcel(), __('TestSuite'));
+        $sheet = new PHPExcel_Worksheet($this->getExcel(), __('TestSuite'));
         //计算测试用例数据
         $sheet->setCellValue('A1',__('Name'))
             ->setCellValue('B1',  __('Test number'))
@@ -106,6 +156,27 @@ class Excel extends ReportStrategy
                 ->setCellValue("D{$key}", $testSuiteAnalysis['testCaseFailedNum'])
                 ->setCellValue("E{$key}", (number_format($testSuiteAnalysis['testCaseSuccessNum'] / $testSuiteAnalysis['testCaseNum'], 4) * 100) . '%')
                 ->setCellValue("F{$key}", (number_format($testSuiteAnalysis['testCaseFailedNum'] / $testSuiteAnalysis['testCaseNum'], 4) * 100) . '%');
+        }
+        return $sheet;
+    }
+
+    /**
+     * 生成测试用例sheet
+     * @param TestCase $testCase
+     * @return PHPExcel_Worksheet
+     */
+    protected function makeTestCaseTable(TestCase $testCase)
+    {
+        $sheet = new PHPExcel_Worksheet($this->getExcel(), __('TestSuite'));
+        //计算测试用例数据
+        $sheet->setCellValue('A1', __('Test Method'))
+            ->setCellValue('B1', __('Test Result'))
+            ->setCellValue('C1', __('Messages'));
+        foreach (array_values($testCase->getTestCaseReport()->getTestMethodReports()) as $key => $testMethodReport) {
+            $key += 2;
+            $sheet->setCellValue("A{$key}", $testMethodReport->getMethod()->getName())
+                ->setCellValue("B{$key}", $testMethodReport->getTestResult() ? __('Success') : __('Failed'))
+                ->setCellValue("C{$key}", implode(PHP_EOL, $testMethodReport->getMessages()) ?: 'None');
         }
         return $sheet;
     }

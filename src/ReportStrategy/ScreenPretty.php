@@ -14,6 +14,9 @@ use Symfony\Component\Console\Question\Question;
 
 class ScreenPretty extends ReportStrategy
 {
+    /**
+     * 执行策略
+     */
     function execute()
     {
         $output = $this->getMechanic()->getCommand()->getOutput();
@@ -115,7 +118,7 @@ class ScreenPretty extends ReportStrategy
     }
 
     /**
-     * 生成测试用例的
+     * 生成测试用例table
      * @param TestCase $testCase
      * @return Table
      */
