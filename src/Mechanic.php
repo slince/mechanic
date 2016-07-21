@@ -85,6 +85,9 @@ class Mechanic
      */
     protected $reportStrategies = [];
 
+    /**
+     * @var Mechanic
+     */
     static $instance;
     
     function __construct(array $testSuites = [])
@@ -99,6 +102,7 @@ class Mechanic
         $this->testSuites = $testSuites;
         $this->initialize();
         $this->classLoader->register();
+        static::$instance = $this;
     }
 
     function initialize()
@@ -371,7 +375,7 @@ class Mechanic
                 //执行用例方法，如果方法没有明确返回false，则用例方法算执行成功
                 $result = $testMethod->invoke($testCase);
                 $result = ($result !== false);
-                $message = 'Fail';
+                $message = '';
             } catch (\Exception $e) {
                 $result = false;
                 $message = $e->getMessage();

@@ -5,8 +5,9 @@
  */
 namespace Slince\Mechanic\ReportStrategy;
 
-class ExcelStrategy extends ReportStrategy
+class Excel extends ReportStrategy
 {
+    protected 
     protected $excel;
 
     function __construct()

@@ -26,6 +26,10 @@ class ScreenPretty extends ReportStrategy
 
         $question = new Question(__("Please input test suite name for see more information: "));
         $question->setValidator(function($answer){
+            $answer = trim($answer);
+            if (empty($answer)) {
+                throw new InvalidArgumentException(__("You should input a valid test suite name"));
+            }
             if (($testSuite = $this->getMechanic()->getTestSuite(trim($answer))) == null) {
                 throw new InvalidArgumentException(__("Can not find test suite [{0}]", $answer));
             }
@@ -126,7 +130,7 @@ class ScreenPretty extends ReportStrategy
             $rows[] = [
                 $testMethodReport->getMethod()->getName(),
                 $testMethodReport->getTestResult() ? __('Success') : __('Failed'),
-                implode(PHP_EOL, $testMethodReport->getMessages())
+                implode(PHP_EOL, $testMethodReport->getMessages()) ?: 'None'
             ];
         }
         $table->setRows($rows);

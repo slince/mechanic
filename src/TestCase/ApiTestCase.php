@@ -6,6 +6,7 @@
 namespace Slince\Mechanic\TestCase;
 
 use GuzzleHttp\Client;
+use Slince\Mechanic\Mechanic;
 use Slince\Mechanic\TestCase\ApiTest\Api;
 use Slince\Mechanic\TestCase\ApiTest\RequestAdapter;
 
@@ -40,7 +41,7 @@ class ApiTestCase extends TestCase
     static function getRequestAdapter()
     {
         if (is_null(static::$requestAdapter)) {
-            static::$requestAdapter = new RequestAdapter();
+            static::$requestAdapter = new RequestAdapter(Mechanic::instance());
         }
         return static::$requestAdapter;
     }
