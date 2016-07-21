@@ -73,4 +73,22 @@ class EmailNotification extends ReportStrategy
         ]);
         return $table;
     }
+
+    protected function convertToHtml(ReportTable $reportTable)
+    {
+        $html = '<table><tr>';
+        foreach ($reportTable->getHeaders() as $header) {
+            $html .= "<th>{$header}</th>";
+        }
+        $html .= "</tr>";
+        foreach ($reportTable->getRows() as $row) {
+            $html .= "<tr>";
+            foreach ($row as $cell) {
+                $html .= "<td>{$cell}</td>";
+            }
+            $html .= "</tr>";
+        }
+        $html .= "</table>";
+        return $html;
+    }
 }

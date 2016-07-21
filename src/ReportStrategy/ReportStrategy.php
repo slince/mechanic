@@ -76,7 +76,7 @@ abstract class ReportStrategy
      * 创建测试套件概要
      * @return ReportTable
      */
-    protected function makeTestSuiteSummaryTable()
+    protected function getTestSuiteSummaryTable()
     {
         //计算测试用例数据
         $table = new ReportTable();
@@ -103,7 +103,7 @@ abstract class ReportStrategy
      * @param TestCase $testCase
      * @return ReportTable
      */
-    protected function makeTestCaseTable(TestCase $testCase)
+    protected function getTestCaseTable(TestCase $testCase)
     {
         //计算测试用例数据
         $table = new ReportTable();

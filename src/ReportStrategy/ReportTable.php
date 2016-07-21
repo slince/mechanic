@@ -8,9 +8,17 @@ namespace Slince\Mechanic\ReportStrategy;
 
 class ReportTable
 {
-    protected $headers;
+    /**
+     * headers
+     * @var array
+     */
+    protected $headers = [];
 
-    protected $rows;
+    /**
+     * 表行
+     * @var array
+     */
+    protected $rows = [];
 
     function __construct(array $headers = [], array $rows = [])
     {
@@ -18,13 +26,16 @@ class ReportTable
         $this->rows = $rows;
     }
 
+    /**
+     * @param array $headers
+     */
     function setHeaders(array $headers)
     {
         $this->headers = $headers;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getHeaders()
     {
@@ -32,7 +43,7 @@ class ReportTable
     }
 
     /**
-     * @param mixed $rows
+     * @param array $rows
      */
     public function setRows($rows)
     {
@@ -40,7 +51,7 @@ class ReportTable
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getRows()
     {

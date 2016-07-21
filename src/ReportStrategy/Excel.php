@@ -180,4 +180,25 @@ class Excel extends ReportStrategy
         }
         return $sheet;
     }
+
+
+    protected function convertToSheet(ReportTable $reportTable)
+    {
+        $sheet = new PHPExcel_Worksheet($this->getExcel(), __('TestSuite'));
+        foreach ($reportTable->getHeaders() as $key => $header) {
+            $key += 1;
+
+        }
+        //计算测试用例数据
+        $sheet->setCellValue('A1', __('Test Method'))
+            ->setCellValue('B1', __('Test Result'))
+            ->setCellValue('C1', __('Messages'));
+        foreach (array_values($testCase->getTestCaseReport()->getTestMethodReports()) as $key => $testMethodReport) {
+            $key += 2;
+            $sheet->setCellValue("A{$key}", $testMethodReport->getMethod()->getName())
+                ->setCellValue("B{$key}", $testMethodReport->getTestResult() ? __('Success') : __('Failed'))
+                ->setCellValue("C{$key}", implode(PHP_EOL, $testMethodReport->getMessages()) ?: 'None');
+        }
+        return $sheet;
+    }
 }
