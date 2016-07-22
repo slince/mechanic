@@ -158,7 +158,7 @@ class Excel extends ReportStrategy
      */
     protected function makeTestSuiteSheet(TestSuite $testSuite)
     {
-        $sheet = new PHPExcel_Worksheet($this->getExcel(), $testSuite->getName());
+        $sheet = new PHPExcel_Worksheet($this->getExcel(), substr($testSuite->getName(), 0 ,20));
         $rows = [];
         foreach ($testSuite->getTestCases() as $testCase) {
             $reportTable = $this->getTestCaseTable($testCase);

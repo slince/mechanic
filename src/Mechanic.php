@@ -195,6 +195,14 @@ class Mechanic
     }
 
     /**
+     * @return Filesystem
+     */
+    public function getFilesystem()
+    {
+        return $this->filesystem;
+    }
+
+    /**
      * @return Report
      */
     public function getReport()
@@ -302,6 +310,9 @@ class Mechanic
      */
     function run(array $testSuiteNames = [])
     {
+        //先执行测试套件的套件方法
+        $this->preHandleTestSuites();
+        //检查需要执行的套件名称
         $this->checkTestSuiteNames($testSuiteNames);
         $testSuites = $this->getWaitingExecuteTestSuites($testSuiteNames);
         $this->dispatcher->dispatch(EventStore::MECHANIC_RUN, new Event(EventStore::MECHANIC_RUN, $this, [
@@ -314,6 +325,16 @@ class Mechanic
         $this->executeTestSuites = $testSuites;
         $this->dispatcher->dispatch(EventStore::MECHANIC_FINISH, new Event(EventStore::MECHANIC_FINISH, $this));
         $this->executeReportStrategies();
+    }
+
+    /**
+     * 预处理测试套件
+     */
+    protected function preHandleTestSuites()
+    {
+        foreach ($this->getTestSuites() as $testSuite) {
+            $testSuite->suite();
+        }
     }
 
     /**
@@ -361,6 +382,10 @@ class Mechanic
      */
     protected function runTestSuite(TestSuite $testSuite)
     {
+        //给TestSuite传参
+        $testSuite->setMechanic($this);
+        //执行套件方法
+        $testSuite->suite();
         $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTE, new Event(EventStore::TEST_SUITE_EXECUTE, $this, [
             'testSuite' => $testSuite
         ]));
@@ -379,6 +404,8 @@ class Mechanic
      */
     protected function runTestCase(TestCase $testCase)
     {
+        //给测试用例传递Mechanic
+        $testCase->setMechanic($this);
         $testMethods = $this->getTestCaseTestMethods($testCase);
         $this->dispatcher->dispatch(EventStore::TEST_CASE_EXECUTE, new Event(EventStore::TEST_CASE_EXECUTE, $this, [
             'testCase' => $testCase,

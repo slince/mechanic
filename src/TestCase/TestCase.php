@@ -32,7 +32,7 @@ class TestCase
      */
     protected $testCaseReport;
 
-    function __construct(Mechanic $mechanic)
+    function __construct(Mechanic $mechanic = null)
     {
         $this->mechanic = $mechanic;
         $this->testCaseReport = $this->createReport();
@@ -69,6 +69,14 @@ class TestCase
     function getGlobalParameters()
     {
         return $this->mechanic->getParameters();
+    }
+
+    /**
+     * @param Mechanic $mechanic
+     */
+    public function setMechanic($mechanic)
+    {
+        $this->mechanic = $mechanic;
     }
 
     /**

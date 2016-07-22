@@ -123,7 +123,7 @@ class RunCommand extends Command
         $testCases = [];
         foreach ($files as $file) {
             $testCaseClass = "{$mechanic->getNamespace()}\\TestCase\\" . $file->getBasename('.php');
-            $testCases[] = new $testCaseClass($mechanic);
+            $testCases[] = new $testCaseClass();
         }
         return new TestSuite('default', $testCases);
     }
@@ -140,7 +140,8 @@ class RunCommand extends Command
         $testSuites = [];
         foreach ($files as $file) {
             $testSuiteClass = "{$mechanic->getNamespace()}\\TestSuite\\" . $file->getBasename('.php');
-            $testSuites[] = new $testSuiteClass();
+            $testSuite = new $testSuiteClass();
+            $testSuites[] = $testSuite;
         }
         return $testSuites;
     }

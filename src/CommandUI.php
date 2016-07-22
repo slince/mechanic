@@ -5,6 +5,7 @@
  */
 namespace Slince\Mechanic;
 
+use Slince\Mechanic\Command\NewProjectCommand;
 use Slince\Mechanic\Command\RunCommand;
 use Symfony\Component\Console\Application;
 
@@ -23,7 +24,8 @@ class CommandUI
     static function createCommands()
     {
         return [
-            new RunCommand()
+            new RunCommand(),
+            new NewProjectCommand()
         ];
     }
 

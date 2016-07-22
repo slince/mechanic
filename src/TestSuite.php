@@ -27,6 +27,11 @@ class TestSuite
      */
     protected $testSuiteReport;
 
+    /**
+     * @var Mechanic
+     */
+    protected $mechanic;
+
     function __construct($name = null, array $testCases = [])
     {
         $this->name = $name;
@@ -41,6 +46,22 @@ class TestSuite
     function suite()
     {}
 
+    /**
+     * @param Mechanic $mechanic
+     */
+    public function setMechanic($mechanic)
+    {
+        $this->mechanic = $mechanic;
+    }
+
+    /**
+     * @return Mechanic
+     */
+    public function getMechanic()
+    {
+        return $this->mechanic;
+    }
+    
     /**
      * @param string $name
      */
