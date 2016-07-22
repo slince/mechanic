@@ -53,6 +53,11 @@ class Mechanic
     protected $testSuites;
 
     /**
+     * @var TestSuite[]
+     */
+    protected $executeTestSuites;
+
+    /**
      * class loader
      * @var ClassLoader
      */
@@ -131,6 +136,14 @@ class Mechanic
     public function getTestSuites()
     {
         return $this->testSuites;
+    }
+
+    /**
+     * @return TestSuite[]
+     */
+    public function getExecuteTestSuites()
+    {
+        return $this->executeTestSuites;
     }
 
     /**
@@ -298,6 +311,7 @@ class Mechanic
             $this->runTestSuite($testSuite);
             $this->getReport()->addTestSuiteReports($testSuite->getTestSuiteReport());
         }
+        $this->executeTestSuites = $testSuites;
         $this->dispatcher->dispatch(EventStore::MECHANIC_FINISH, new Event(EventStore::MECHANIC_FINISH, $this));
         $this->executeReportStrategies();
     }

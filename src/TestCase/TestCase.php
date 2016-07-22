@@ -13,6 +13,11 @@ use Slince\Mechanic\TestSuite;
 class TestCase
 {
     /**
+     * 测试用例名称
+     * @var string
+     */
+    protected $name;
+    /**
      * @var Mechanic
      */
     protected $mechanic;
@@ -31,8 +36,32 @@ class TestCase
     {
         $this->mechanic = $mechanic;
         $this->testCaseReport = $this->createReport();
+        $this->initialize();
     }
 
+    function initialize()
+    {
+
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        if (empty($this->name)) {
+            $this->name = basename(get_class($this));
+        }
+        return $this->name;
+    }
     /**
      * 获取全局参数
      * @return ArrayCache

@@ -25,7 +25,7 @@ class ScreenPretty extends ReportStrategy
         $output->writeln(__('TestSuite'));
         $this->convertToTable($this->getTestSuiteSummaryTable())->render();
 
-        $question = new Question(__("Please input test suite name for see more information: "));
+        $question = new Question(__("Please input test suite name for more information: "));
         $question->setValidator(function($answer){
             $answer = trim($answer);
             if (empty($answer)) {
