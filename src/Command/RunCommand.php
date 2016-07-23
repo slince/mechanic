@@ -68,6 +68,7 @@ class RunCommand extends Command
         $mechanic->setTestSuites($testSuites);
         $this->bindEventsForUi($mechanic, $output);
         $mechanic->run($testSuiteNames);
+        return intval(!$mechanic->getReport()->getTestResult());
     }
 
     /**

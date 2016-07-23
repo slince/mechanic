@@ -30,6 +30,7 @@ class CommandUI
     static function main()
     {
         $application = new Application();
+        $application->setAutoExit(true);
         $application->addCommands(self::createCommands());
         $application->run();
     }
