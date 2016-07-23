@@ -32,7 +32,7 @@ class NewProjectCommand extends Command
     function configure()
     {
         $this->setName('new-project');
-        $this->addArgument('name', InputArgument::OPTIONAL, __("Project name"), 'test');
+        $this->addArgument('name', InputArgument::REQUIRED, __("Project name"));
     }
 
     function execute(InputInterface $input, OutputInterface $output)

@@ -211,7 +211,7 @@ class Mechanic
     }
 
     /**
-     * @return ReportStrategy\ReportStrategy[]
+     * @return ReportStrategy[]
      */
     public function getReportStrategies()
     {
@@ -354,7 +354,7 @@ class Mechanic
                 return true;
             });
             if (!empty($notExistsTestSuiteNames)){
-                throw new InvalidArgumentException(sprintf("Test suite [%s] does not exists",
+                throw new InvalidArgumentException(__("Test suite [{0}] does not exists",
                     implode(',', $notExistsTestSuiteNames)));
             }
         }
@@ -384,8 +384,6 @@ class Mechanic
     {
         //给TestSuite传参
         $testSuite->setMechanic($this);
-        //执行套件方法
-        $testSuite->suite();
         $this->dispatcher->dispatch(EventStore::TEST_SUITE_EXECUTE, new Event(EventStore::TEST_SUITE_EXECUTE, $this, [
             'testSuite' => $testSuite
         ]));

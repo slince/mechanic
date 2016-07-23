@@ -83,7 +83,6 @@ class Excel extends ReportStrategy
     function execute()
     {
         $output = $this->getMechanic()->getCommand()->getOutput();
-        $output->writeln(__("Making Report..."));
         $this->excel->addSheet($this->makeSummarySheet(), 0);
         foreach ($this->getMechanic()->getExecuteTestSuites() as $key => $testSuite) {
             $key ++;
@@ -96,6 +95,8 @@ class Excel extends ReportStrategy
         } catch (\PHPExcel_Exception $e) {
             $output->writeln($e->getMessage());
         }
+        $output->write(PHP_EOL);
+        $output->writeln(__("Make Report OK."));
     }
 
     /**
@@ -104,13 +105,13 @@ class Excel extends ReportStrategy
      */
     protected function initializeExcel(PHPExcel $excel)
     {
-        $excel->getProperties()->setCreator('Mechanic')
-            ->setLastModifiedBy('Mechanic')
-            ->setTitle('Mechanic Test Repoprt')
-            ->setSubject('Mechanic Test Repoprt')
-            ->setDescription('Mechanic Test Repoprt')
-            ->setKeywords('Mechanic Test Report')
-            ->setCategory("Report");
+        $excel->getProperties()->setCreator(__('Mechanic'))
+            ->setLastModifiedBy(__('Mechanic'))
+            ->setTitle(__('Mechanic Test Report'))
+            ->setSubject(__('Mechanic Test Report'))
+            ->setDescription(__('Mechanic Test Report'))
+            ->setKeywords(__('Mechanic Test Report'))
+            ->setCategory(__("Report"));
         $excel->setActiveSheetIndex(0);
     }
 

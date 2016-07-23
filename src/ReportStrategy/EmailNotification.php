@@ -117,28 +117,6 @@ class EmailNotification extends ReportStrategy
     }
 
     /**
-     * 创建概要
-     * @return Table
-     */
-    protected function makeSummaryTable()
-    {
-        $output = $this->getMechanic()->getCommand()->getOutput();
-        $analysis = $this->getReport()->analyze();
-        $table = new Table($output);
-        $table->setHeaders([__('Execute Result'), __('Test Suite Number'),
-            __('Success Suite Number'), __('Failed Suite Number')]);
-        $table->setRows([
-            [
-                $analysis['result'] ? __('Success') : __('Failed'),
-                $analysis['testSuiteNum'],
-                $analysis['testSuiteSuccessNum'],
-                $analysis['testSuiteFailedNum'],
-            ]
-        ]);
-        return $table;
-    }
-
-    /**
      * 转换成html结构
      * @param ReportTable $reportTable
      * @return string

@@ -46,8 +46,8 @@ class RunCommand extends Command
     function configure()
     {
         $this->setName(static::NAME);
-        $this->addArgument('src', InputArgument::OPTIONAL, 'Test project location', getcwd());
-        $this->addOption('suite', 's', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'Test suite you want execute, default all');
+        $this->addArgument('src', InputArgument::OPTIONAL, __('Test project location'), getcwd());
+        $this->addOption('suite', 's', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, __('Test suite you want execute, default all'));
     }
 
     function execute(InputInterface $input, OutputInterface $output)
@@ -58,7 +58,7 @@ class RunCommand extends Command
         $testSuiteNames = $input->getOption('suite');
         $bootFile = "{$this->src}/src/AppMechanic.php";
         if (!file_exists($bootFile)) {
-            throw new InvalidArgumentException(sprintf("You should create \"AppMechanic.php\" at [%s]", $this->src . '/src'));
+            throw new InvalidArgumentException(__("You should create \"AppMechanic.php\" at [{0}]", $this->src . '/src'));
         }
         include $bootFile;
         $mechanic = new AppMechanic();
@@ -81,13 +81,13 @@ class RunCommand extends Command
         $dispatcher->bind(EventStore::MECHANIC_RUN, function(Event $event) use ($output){
             $testSuites = $event->getArgument('testSuites');
             $total = count($testSuites);
-            $output->writeln("Mechanic will be performed {$total} test suites, Please wait a moment");
+            $output->writeln(__("Mechanic will be performed {0} test suites, please wait a moment", $total));
             $output->write(PHP_EOL);
         });
         //执行测试套件
         $dispatcher->bind(EventStore::TEST_SUITE_EXECUTE, function(Event $event) use($output){
             $testSuite = $event->getArgument('testSuite');
-            $output->writeln(__("Processing test suite \"{$testSuite->getName()}\""));
+            $output->writeln(__("Processing test suite \"{0}\"", $testSuite->getName()));
             $this->progressBars[$testSuite->getName()] = new ProgressBar($output, count($testSuite->getTestCases()));
             $this->progressBars[$testSuite->getName()]->start();
         });
@@ -95,6 +95,7 @@ class RunCommand extends Command
         $dispatcher->bind(EventStore::TEST_SUITE_EXECUTED, function(Event $event) use($output){
             $testSuite = $event->getArgument('testSuite');
             $this->progressBars[$testSuite->getName()]->finish();
+            $output->writeln(PHP_EOL);
         });
         //执行测试用例
         $dispatcher->bind(EventStore::TEST_CASE_EXECUTE, function(Event $event) use($output){
@@ -106,7 +107,6 @@ class RunCommand extends Command
             $testCase = $event->getArgument('testCase');
         });
         $dispatcher->bind(EventStore::MECHANIC_FINISH, function() use ($output){
-            $output->writeln(PHP_EOL);
             $output->writeln(__("Mechanic stop."));
         });
     }
