@@ -25,11 +25,11 @@ class ScreenPretty extends ReportStrategy
         $output->writeln(__('TestSuite'));
         $this->convertToTable($this->getTestSuiteSummaryTable())->render();
 
-        $question = new Question(__("Please input test suite name for more information: "));
+        $question = new Question(__("Please input test suite name for more information or skip to exit: "));
         $question->setValidator(function($answer){
             $answer = trim($answer);
             if (empty($answer)) {
-                throw new InvalidArgumentException(__("You should input a valid test suite name"));
+                return false;
             }
             if (($testSuite = $this->getMechanic()->getTestSuite(trim($answer))) == null) {
                 throw new InvalidArgumentException(__("Can not find test suite [{0}]", $answer));
@@ -42,10 +42,14 @@ class ScreenPretty extends ReportStrategy
         do {
             $output->write(PHP_EOL);
             $testSuite = $questionHelper->ask($input, $output, $question);
-            foreach ($testSuite->getTestCases() as $testCase) {
-                $this->convertToTable($this->getTestCaseTable($testCase))->render();
+            if ($testSuite !== false) {
+                foreach ($testSuite->getTestCases() as $testCase) {
+                    $this->convertToTable($this->getTestCaseTable($testCase))->render();
+                }
+                $continue = $questionHelper->ask($input, $output, new ConfirmationQuestion(__("Continue? ")));
+            } else {
+                $continue = false;
             }
-            $continue = $questionHelper->ask($input, $output, new ConfirmationQuestion(__("Continue? ")));
         } while($continue);
         $output->write(PHP_EOL);
         $output->writeln(__('Tips: More report information please used other strategy.'));
