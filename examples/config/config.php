@@ -10,9 +10,9 @@ return [
         'sender@host.com'
     ],
     'smtp' => [
-        'host' => 'smtp.yeah.net',
+        'host' => 'smtp.host.com',
         'port' => 25,
-        'username' => 'taosikai@yeah.net',
-        'password' => 'TSK15155240500'
+        'username' => 'username@host.com',
+        'password' => 'password'
     ]
 ];
