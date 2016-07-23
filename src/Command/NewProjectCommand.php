@@ -33,6 +33,7 @@ class NewProjectCommand extends Command
     {
         $this->setName('new-project');
         $this->addArgument('name', InputArgument::REQUIRED, __("Project name"));
+        $this->setDescription(__("Create test project"));
     }
 
     function execute(InputInterface $input, OutputInterface $output)

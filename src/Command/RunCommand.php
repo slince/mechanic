@@ -48,6 +48,7 @@ class RunCommand extends Command
         $this->setName(static::NAME);
         $this->addArgument('src', InputArgument::OPTIONAL, __('Test project location'), getcwd());
         $this->addOption('suite', 's', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, __('Test suite you want execute, default all'));
+        $this->setDescription(__("Execute test project"));
     }
 
     function execute(InputInterface $input, OutputInterface $output)
