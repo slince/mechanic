@@ -16,10 +16,10 @@ class LoginTest extends ApiTestCase
         $api = $this->createApi($this->url)
             ->setQuery([
                 'email' => 'test@test.cn',
-                'password' => '1234564'
-            ])
-            ->setProxy('tcp://127.0.0.1:8888');
+                'password' => '123456'
+            ]);
         $response = $this->request($api);
+        $this->getTestCaseReport()->addMessage("备注");
         $responseData = json_decode($response->getBody());
         Assert::eq($response->getStatusCode(), 200, '服务器连接错误');
         Assert::eq($responseData->code, 0, '状态码返回错误');
@@ -34,8 +34,7 @@ class LoginTest extends ApiTestCase
             ->setQuery([
                 'email' => 'user@notexists.com',
                 'password' => '123456'
-            ])
-            ->setProxy('tcp://127.0.0.1:8888');
+            ]);
         $response = $this->request($api);
         $responseData = json_decode($response->getBody());
         Assert::eq($response->getStatusCode(), 200, '服务器连接错误');

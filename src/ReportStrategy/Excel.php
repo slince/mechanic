@@ -166,6 +166,9 @@ class Excel extends ReportStrategy
             $rows[] = [$testCase->getName()];
             $rows = array_merge($rows, [$reportTable->getHeaders()], $reportTable->getRows());
             $rows[] = [];
+            if ($messages = $testCase->getTestCaseReport()->getMessages()) {
+                $rows[] = [__("Messages"), implode("\r\n", $messages)];
+            }
         }
         $sheet->fromArray($rows);
         return $sheet;
