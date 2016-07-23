@@ -12,12 +12,6 @@ use Symfony\Component\Console\Application;
 class CommandUI
 {
     /**
-     * 默认的应用
-     * @var string
-     */
-    const DEFAULT_COMMAND_NAME = 'go';
-
-    /**
      * 创建command
      * @return array
      */
@@ -37,7 +31,6 @@ class CommandUI
     {
         $application = new Application();
         $application->addCommands(self::createCommands());
-        $application->setDefaultCommand(self::DEFAULT_COMMAND_NAME);
         $application->run();
     }
 }
