@@ -54,4 +54,4 @@ Mechanic支持以下几种报告策略：
 - EmailNotification， 邮件通知，将测试报告以邮件形式发送到指定邮箱，该策略需要简单的邮件配置
 - ScreenPretty， 屏幕输出，将测试结果打印在终端或控制台，由于篇幅问题，测试套件的信息需要你与控制台交互
 
-你可以将Mechanic与Jenkins结合实现全自动化测试，详细情况参考文章(Mechanic于Jenkins结合实现无人值守自动化运)[http://www.qimuyu.com/posts/49]
+你可以将Mechanic与Jenkins结合实现全自动化测试，详细情况参考文章[Mechanic于Jenkins结合实现无人值守自动化运](http://www.qimuyu.com/posts/49)
