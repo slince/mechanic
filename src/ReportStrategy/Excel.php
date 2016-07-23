@@ -168,6 +168,7 @@ class Excel extends ReportStrategy
             $rows[] = [];
             if ($messages = $testCase->getTestCaseReport()->getMessages()) {
                 $rows[] = [__("Messages"), implode("\r\n", $messages)];
+                $rows[] = [];
             }
         }
         $sheet->fromArray($rows);
