@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 use Slince\Mechanic\CommandUI;
+
 date_default_timezone_set('prc');
 foreach ([__DIR__ . '/../../../vendor/autoload.php'
      , __DIR__ . '/../../vendor/autoload.php'

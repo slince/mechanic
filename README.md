@@ -47,7 +47,7 @@ mechanic run [project] --suite TestSuiteName1 --suite TestSuiteName2
 project是可选的，如果不提供测默认当前目录是测试项目路径
 
 ### 查看测试报告
-mechanic支持以下几种报告策略：
+Mechanic支持以下几种报告策略：
 
 - Excel，最基本的测试报告，执行完毕之后你可以在测试项目`/reports`看到测试报告
 - PDF， 与excel类似，报告在reports下面查看，由于测试报告效果并不理想，暂时不可用
