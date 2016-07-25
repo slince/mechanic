@@ -77,10 +77,10 @@ class Api
      */
     protected $proxy = null;
     /**
-     * 自定义证书
+     * 自定义证书校验
      * @var string
      */
-    protected $cert = null;
+    protected $verify = null;
 
     function __construct(
         $url,
@@ -95,7 +95,7 @@ class Api
         array $cookies = [],
         $enableCookie = false,
         $proxy = null,
-        $cert = null
+        $verify = null
     ) {
         $this->url = Url::createFromUrl($url);
         $this->method = $method;
@@ -109,7 +109,7 @@ class Api
         $this->cookies = $cookies;
         $this->enableCookie = $enableCookie;
         $this->proxy = $proxy;
-        $this->cert = $cert;
+        $this->verify = $verify;
     }
 
     /**
@@ -335,22 +335,22 @@ class Api
 
     /**
      * 设置证书地址
-     * @param $cert
+     * @param $verify
      * @return $this
      */
-    public function setCert($cert)
+    public function setVerify($verify)
     {
-        $this->cert = $cert;
+        $this->verify = $verify;
         return $this;
     }
 
     /**
-     * 获取证书地址
+     * 获取证书验证
      * @return null|string
      */
-    public function getCert()
+    public function getVerify()
     {
-        return $this->cert;
+        return $this->verify;
     }
 
     /**

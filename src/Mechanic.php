@@ -451,8 +451,8 @@ class Mechanic
      */
     function processValue($value)
     {
-        if (is_scalar($value)) {
-            return  preg_replace_callback('#\{([a-zA-Z0-9_,]*)\}#i', function ($matches) {
+        if (is_string($value)) {
+            return preg_replace_callback('#\{([a-zA-Z0-9_,]*)\}#i', function ($matches) {
                 if (!isset($this->parameters[$matches[1]])) {
                     throw new RuntimeException(__("The variable [{0}] does not exists", $matches[1]));
                 }

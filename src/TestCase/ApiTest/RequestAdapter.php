@@ -95,12 +95,9 @@ class RequestAdapter
             $options['multipart'] = $multipartParams;
             unset($options['form_params']);
         }
-        //如果证书文件路径不是绝对路径则从工作目录下查找
-        if ($cert = $api->getCert()) {
-            if (!$this->mechanic->getFilesystem()->isAbsolutePath($cert)) {
-                $cert =  realpath(getcwd() .DIRECTORY_SEPARATOR . $cert);
-            }
-            $options['cert'] = $cert;
+        //ssl校验
+        if ($verify = $api->getVerify()) {
+            $options['verify'] = $verify;
         }
         //如果开启cookie或者有自定义cookie都视为需要cookie支持
         if ($api->getEnableCookie() || $cookies = $api->getCookies()) {
