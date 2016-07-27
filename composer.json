@@ -29,7 +29,8 @@
         "symfony/finder": "^3.1",
         "cakephp/i18n": "^3.2",
         "dompdf/dompdf": "^0.6.0",
-        "swiftmailer/swiftmailer": "^5.4"
+        "swiftmailer/swiftmailer": "^5.4",
+        "facebook/webdriver": "^1.1"
     },
     "bin": [
         "mechanic"
