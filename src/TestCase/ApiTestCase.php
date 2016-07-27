@@ -7,8 +7,8 @@ namespace Slince\Mechanic\TestCase;
 
 use GuzzleHttp\Client;
 use Slince\Mechanic\Mechanic;
-use Slince\Mechanic\TestCase\ApiTest\Api;
-use Slince\Mechanic\TestCase\ApiTest\RequestAdapter;
+use Slince\Mechanic\TestCase\Api\Api;
+use Slince\Mechanic\TestCase\Api\RequestAdapter;
 
 class ApiTestCase extends TestCase
 {
@@ -52,7 +52,7 @@ class ApiTestCase extends TestCase
      */
     function createApi()
     {
-        return $this->getMechanic()->getContainer()->create('Slince\\Mechanic\\TestCase\\ApiTest\\Api', func_get_args());
+        return $this->getMechanic()->getContainer()->create('Slince\\Mechanic\\TestCase\\Api\\Api', func_get_args());
     }
 
     /**
